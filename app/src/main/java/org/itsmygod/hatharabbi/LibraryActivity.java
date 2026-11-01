@@ -16,6 +16,7 @@ import org.json.JSONObject;
 /** Native category and post browsing with WordPress REST pagination. */
 public class LibraryActivity extends Activity {
  private LinearLayout list;
+ private int tileCount=0;
  private int category = 0, page = 1;
  private String title = "المكتبة";
  private boolean loading = false;
@@ -28,12 +29,25 @@ public class LibraryActivity extends Activity {
   t.setGravity(Gravity.RIGHT); return t;
  }
  private void row(String value, Runnable action) {
-  TextView t = label(value, 17);
-  GradientDrawable bg = new GradientDrawable(); bg.setColor(Color.WHITE); bg.setCornerRadius(dp(12));
-  t.setBackground(bg);
-  LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1,-2);
-  p.setMargins(dp(12),dp(6),dp(12),dp(6)); list.addView(t,p);
-  t.setOnClickListener(v -> action.run());
+  LinearLayout tile=new LinearLayout(this);
+  tile.setOrientation(LinearLayout.HORIZONTAL);
+  tile.setGravity(Gravity.CENTER_VERTICAL);
+  tile.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+  GradientDrawable bg=new GradientDrawable();
+  bg.setColor(Color.WHITE);bg.setCornerRadius(dp(18));
+  bg.setStroke(dp(1),Color.rgb(220,232,235));
+  tile.setBackground(bg);tile.setElevation(dp(3));
+  tile.setPadding(dp(16),dp(14),dp(16),dp(14));
+  TextView icon=label(value.startsWith("📖")?"📖":value.startsWith("◈")?"◈":"▦",24);
+  icon.setGravity(Gravity.CENTER);
+  tile.addView(icon,new LinearLayout.LayoutParams(dp(55),dp(65)));
+  TextView name=label(value.replaceFirst("^[📖◈▦]\\\\s*",""),17);
+  name.setTypeface(null,Typeface.BOLD);
+  tile.addView(name,new LinearLayout.LayoutParams(0,-2,1));
+  TextView arrow=label("‹",25);tile.addView(arrow);
+  LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);
+  p.setMargins(dp(12),dp(7),dp(12),dp(7));
+  list.addView(tile,p);tile.setOnClickListener(v->action.run());
  }
  @Override public void onCreate(Bundle b) {
   super.onCreate(b); category = getIntent().getIntExtra("category",0);
