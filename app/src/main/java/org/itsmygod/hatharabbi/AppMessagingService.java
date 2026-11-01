@@ -25,11 +25,15 @@ public class AppMessagingService extends FirebaseMessagingService {
         NotificationManager manager = getSystemService(NotificationManager.class);
         manager.createNotificationChannel(new NotificationChannel(CHANNEL_ID, "أخبار المكتبة", NotificationManager.IMPORTANCE_DEFAULT));
         Intent intent = new Intent(this, SplashActivity.class);
+        intent.putExtra("push_title",title);
+        intent.putExtra("push_body",body);
+        String url=message.getData().get("url");
+        if(url!=null)intent.putExtra("push_url",url);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pending = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pending = PendingIntent.getActivity(this, (int)(System.currentTimeMillis()%Integer.MAX_VALUE), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.app_icon).setContentTitle(title).setContentText(body)
-                .setAutoCancel(true).setContentIntent(pending).setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(body)).setAutoCancel(true).setContentIntent(pending).setPriority(NotificationCompat.PRIORITY_DEFAULT);
         manager.notify((int)(System.currentTimeMillis() % Integer.MAX_VALUE), builder.build());
     }
 }
