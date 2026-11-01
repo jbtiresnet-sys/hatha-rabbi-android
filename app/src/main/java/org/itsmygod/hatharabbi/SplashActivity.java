@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.ImageView;
 public class SplashActivity extends Activity {
  private final Handler handler=new Handler(Looper.getMainLooper());
- private final Runnable next=()->{startActivity(new Intent(this,MainActivity.class));finish();};
+ private final Runnable next=()->{Intent target=new Intent(this,MainActivity.class);if(getIntent()!=null && getIntent().getExtras()!=null)target.putExtras(getIntent().getExtras());startActivity(target);finish();};
  private int dp(int v){return (int)(getResources().getDisplayMetrics().density*v);}
  @Override public void onCreate(Bundle state){
   super.onCreate(state);
