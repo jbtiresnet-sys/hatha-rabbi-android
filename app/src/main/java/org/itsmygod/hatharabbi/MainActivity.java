@@ -51,6 +51,7 @@ public class MainActivity extends Activity {
   TextView intro=text("في رحاب أهل البيت عليهم السلام",20,Color.WHITE);intro.setTypeface(null,Typeface.BOLD);hero.addView(intro);
   TextView subtitle=text("مكتبة إسلامية تجمع المعرفة والصوت والصورة",13,Color.rgb(222,230,220));hero.addView(subtitle);
   LinearLayout.LayoutParams heroLp=new LinearLayout.LayoutParams(-1,dp(190));heroLp.setMargins(dp(16),dp(8),dp(16),dp(16));home.addView(hero,heroLp);
+  TextView nativeLink=text("تصفح جميع التصنيفات وأحدث المقالات  ◀",19,GREEN);nativeLink.setOnClickListener(v->startActivity(new Intent(this,LibraryActivity.class)));home.addView(nativeLink);
   TextView section=text("اكتشف المكتبة",21,GOLD);section.setGravity(android.view.Gravity.RIGHT);section.setTypeface(null,Typeface.BOLD);home.addView(section);
   addTile("♫","المكتبة الصوتية","تسجيلات ومحاضرات وقصائد",SITE+"category/sawtiyat/",GREEN);
   addTile("▶","المحاضرات الإسلامية","مجالس ومحاضرات مرئية",SITE+"category/lectures/",MAROON);
@@ -64,7 +65,7 @@ public class MainActivity extends Activity {
   web.setDownloadListener((url,ua,disposition,mime,len)->{try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse(url)));}catch(Exception e){Toast.makeText(this,"تعذر فتح التحميل",Toast.LENGTH_SHORT).show();}});
   nav=new LinearLayout(this);nav.setGravity(android.view.Gravity.CENTER);nav.setBackgroundColor(CARD);nav.setLayoutDirection(android.view.View.LAYOUT_DIRECTION_RTL);
   addNav(nav,"الرئيسية","⌂",()->showHome());
-  addNav(nav,"الموقع","◎",()->open(SITE));
+  addNav(nav,"المكتبة","▦",()->startActivity(new Intent(this,LibraryActivity.class)));
   addNav(nav,"بحث صوتي","🎙",()->startVoice());
   addNav(nav,"إيقاف","Ⅱ",()->media("pause"));
   root.addView(nav,new LinearLayout.LayoutParams(-1,dp(70)));
