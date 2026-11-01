@@ -113,9 +113,7 @@ public class MainActivity extends Activity {
     .setPositiveButton("إغلاق",(d,w)->{});
   if(target!=null && target.startsWith("https://www.itsmygod.org/")) {
     dialog.setNeutralButton("عرض المحتوى",(d,w)->{
-      Intent reader=new Intent(this,LibraryActivity.class);
-      reader.putExtra("url",target);
-      startActivity(reader);
+      open(target);
     });
   }
   dialog.show();
