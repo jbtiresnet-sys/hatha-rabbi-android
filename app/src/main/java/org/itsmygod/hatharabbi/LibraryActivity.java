@@ -20,6 +20,7 @@ public class LibraryActivity extends Activity {
  private String title = "المكتبة";
  private boolean loading = false;
  private String search = "";
+ private String slug = "";
  private int dp(int v) { return (int)(v * getResources().getDisplayMetrics().density); }
  private TextView label(String value, int size) {
   TextView t = new TextView(this); t.setText(value); t.setTextSize(size);
@@ -37,6 +38,7 @@ public class LibraryActivity extends Activity {
  @Override public void onCreate(Bundle b) {
   super.onCreate(b); category = getIntent().getIntExtra("category",0);
   search=getIntent().getStringExtra("search");if(search==null)search="";
+  slug=getIntent().getStringExtra("slug");if(slug==null)slug="";
   title = getIntent().getStringExtra("title"); if(title == null) title = "المكتبة";
   LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);
   root.setBackgroundColor(Color.rgb(247,250,251)); root.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
@@ -48,7 +50,19 @@ public class LibraryActivity extends Activity {
   next.setOnClickListener(v -> loadPosts());
   setContentView(root);
   if(!search.isEmpty()) {heading.setText("نتائج البحث: "+search);loadPosts();}
+  else if(category == 0 && !slug.isEmpty()) resolveCategory();
   else if(category == 0) loadCategories(); else { loadChildren(); loadPosts(); }
+ }
+ private void resolveCategory() {
+  WpApi.getArray("categories?slug="+Uri.encode(slug)+"&hide_empty=false", (data,error)->{
+   if(error!=null){row("تعذر تحميل التصنيف. اضغط لإعادة المحاولة",this::resolveCategory);return;}
+   if(data==null || data.length()==0){row("هذا التصنيف غير موجود في ووردبريس: "+title,()->{});return;}
+   JSONObject match=data.optJSONObject(0);
+   if(match==null)return;
+   category=match.optInt("id",0);
+   if(category<=0){row("تعذر تحديد التصنيف",()->{});return;}
+   loadChildren();loadPosts();
+  });
  }
  private void loadCategories() {
   row("التصنيفات",()->{});
