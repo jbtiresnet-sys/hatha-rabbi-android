@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "50080117488",
+    "project_id": "its-my-god",
+    "storage_bucket": "its-my-god.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50080117488:android:e20dd2cb527a1905928835",
+        "android_client_info": {
+          "package_name": "org.itsmygod.hatharabbi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAl9ktX6obyQMn8YqW0291izUPQP9hGAP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
