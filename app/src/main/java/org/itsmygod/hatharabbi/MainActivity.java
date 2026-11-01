@@ -86,6 +86,7 @@ public class MainActivity extends Activity {
   root.addView(nav,new LinearLayout.LayoutParams(-1,dp(70)));
   if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 102);
   FirebaseMessaging.getInstance().subscribeToTopic("all_users");
+  showPushDetails(getIntent());
  }
  private void startVoice(){try{Intent i=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"ar");i.putExtra(RecognizerIntent.EXTRA_PROMPT,"تحدث الآن");startActivityForResult(i,VOICE_REQUEST);}catch(Exception e){Toast.makeText(this,"التعرف الصوتي غير متاح على الجهاز",Toast.LENGTH_LONG).show();}}
  private void media(String action){
@@ -95,6 +96,35 @@ public class MainActivity extends Activity {
  }
 
  @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request!=VOICE_REQUEST||result!=RESULT_OK||data==null)return;ArrayList<String> results=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);if(results==null||results.isEmpty())return;String cmd=results.get(0).trim();String normalized=cmd.replace("أ","ا").replace("إ","ا").replace("آ","ا").replace("ّ","");if(normalized.matches(".*(اطف|اوقف|وقف|اسكت|توقف|ايقاف).*")){media("pause");return;}if(normalized.matches(".*(شغل|اكمل|استأنف|استكمل).*")){media("play");return;}if(normalized.matches(".*(الرئيسيه|الرئيسية|الصفحه الرئيسيه).*")){showHome();return;}if(normalized.contains("قران")||normalized.contains("القران")){openCategory("quran-2","القرآن الكريم");return;}if(normalized.contains("محاضر")){openCategory("lectures","المحاضرات الإسلامية");return;}if(normalized.contains("صوتي")||normalized.contains("تسجيل")){openCategory("sawtiyat","المكتبة الصوتية");return;}if(normalized.contains("لطمي")){openCategory("reciters","اللطميات");return;}if(normalized.startsWith("ابحث عن ")||normalized.startsWith("بحث عن ")){String q=normalized.replaceFirst("^(ابحث عن|بحث عن)\\s*","").trim();if(!q.isEmpty()){Intent search=new Intent(this,LibraryActivity.class);search.putExtra("search",q);startActivity(search);}return;}Toast.makeText(this,"قل: ابحث عن... أو أطفئ أو شغّل",Toast.LENGTH_LONG).show();}
+
+ private void showPushDetails(Intent intent) {
+  if(intent==null)return;
+  String title=intent.getStringExtra("push_title");
+  String body=intent.getStringExtra("push_body");
+  if(title==null)title=intent.getStringExtra("gcm.notification.title");
+  if(body==null)body=intent.getStringExtra("gcm.notification.body");
+  if(title==null && body==null)return;
+  String url=intent.getStringExtra("push_url");
+  if(url==null)url=intent.getStringExtra("url");
+  final String target=url;
+  android.app.AlertDialog.Builder dialog=new android.app.AlertDialog.Builder(this)
+    .setTitle(title==null?"هذا ربي":title)
+    .setMessage(body==null?"":body)
+    .setPositiveButton("إغلاق",(d,w)->{});
+  if(target!=null && target.startsWith("https://www.itsmygod.org/")) {
+    dialog.setNeutralButton("عرض المحتوى",(d,w)->{
+      Intent reader=new Intent(this,LibraryActivity.class);
+      reader.putExtra("url",target);
+      startActivity(reader);
+    });
+  }
+  dialog.show();
+ }
+ @Override protected void onNewIntent(Intent intent) {
+  super.onNewIntent(intent);
+  setIntent(intent);
+  showPushDetails(intent);
+ }
  @Override public void onBackPressed(){if(web.getVisibility()==android.view.View.VISIBLE){if(web.canGoBack()){web.goBack();return;}showHome();return;}super.onBackPressed();}
  @Override protected void onDestroy(){web.destroy();super.onDestroy();}
 }
