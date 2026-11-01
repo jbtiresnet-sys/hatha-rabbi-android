@@ -39,10 +39,10 @@ public class MainActivity extends Activity {
   scroll=new ScrollView(this);scroll.addView(home);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
   TextView intro=text("بسم الله الرحمن الرحيم\nمكتبتك الإسلامية في رحاب أهل البيت عليهم السلام",17,Color.WHITE);home.addView(intro);
   addTile("◉","البحث الصوتي","ابحث عن المحاضرات والقصائد والأدعية بصوتك",SITE,GREEN);
-  addTile("♫","المكتبة الصوتية","استمع إلى أحدث التسجيلات والمحاضرات",SITE,MAROON);
-  addTile("▶","المكتبة المرئية","شاهد الفيديوهات والمجالس",SITE,GREEN);
-  addTile("✦","الأدعية والزيارات","تصفح الأدعية والزيارات",SITE,MAROON);
-  addTile("▤","المقالات والأخبار","آخر ما نُشر في الموقع",SITE,GREEN);
+  addTile("♫","المكتبة الصوتية","استمع إلى أحدث التسجيلات والمحاضرات",SITE+"category/sawtiyat/",MAROON);
+  addTile("▶","المحاضرات الإسلامية","شاهد واستمع إلى المحاضرات",SITE+"category/lectures/",GREEN);
+  addTile("✦","القرآن الكريم","استمع إلى تلاوات القرآن الكريم",SITE+"category/quran-2/",MAROON);
+  addTile("▤","اللطميات","استمع إلى قصائد الرواديد",SITE+"category/reciters/",GREEN);
   TextView footer=text("itsmygod.org",13,GOLD);home.addView(footer);
   web=new WebView(this);web.setVisibility(android.view.View.GONE);root.addView(web,new LinearLayout.LayoutParams(-1,0,1));
   WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setMediaPlaybackRequiresUserGesture(false);
@@ -53,7 +53,12 @@ public class MainActivity extends Activity {
   if(checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},100);
  }
  private void startVoice(){try{Intent i=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"ar");i.putExtra(RecognizerIntent.EXTRA_PROMPT,"تحدث الآن");startActivityForResult(i,VOICE_REQUEST);}catch(Exception e){Toast.makeText(this,"التعرف الصوتي غير متاح على الجهاز",Toast.LENGTH_LONG).show();}}
- private void media(String action){if(web.getVisibility()!=android.view.View.VISIBLE){Toast.makeText(this,"افتح تسجيلاً أولاً",Toast.LENGTH_SHORT).show();return;}String js="(function(){var m=document.querySelectorAll(\u0027audio,video\u0027);for(var i=0;i<m.length;i++){if(\u0027"+action+"\u0027===\u0027pause\u0027)m[i].pause();else m[i].play().catch(function(){});}if(window.speechSynthesis)window.speechSynthesis.cancel();})()";web.evaluateJavascript(js,null);Toast.makeText(this,action.equals("pause")?"تم إرسال أمر الإيقاف":"تم إرسال أمر التشغيل",Toast.LENGTH_SHORT).show();}
+ private void media(String action){
+  if(web.getVisibility()!=android.view.View.VISIBLE){Toast.makeText(this,"افتح تسجيلاً أولاً",Toast.LENGTH_SHORT).show();return;}
+  String js="(function(){var a='"+action+"';var els=document.querySelectorAll('audio,video');var found=false;for(var i=0;i<els.length;i++){found=true;if(a==='pause')els[i].pause();else els[i].play().catch(function(){});}if(a==='pause'&&window.speechSynthesis)window.speechSynthesis.cancel();if(!found){var buttons=document.querySelectorAll('button,[role=button]');for(var j=0;j<buttons.length;j++){var b=buttons[j];var t=(b.innerText||b.getAttribute('aria-label')||b.title||'').trim();if((a==='pause'&&/إيقاف|ايقاف|توقف|pause|⏸/.test(t))||(a==='play'&&/تشغيل|play|▶/.test(t))){b.click();break;}}}return found;})()";
+  web.evaluateJavascript(js,null);
+ }
+
  @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request!=VOICE_REQUEST||result!=RESULT_OK||data==null)return;ArrayList<String> results=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);if(results==null||results.isEmpty())return;String cmd=results.get(0).trim();String normalized=cmd.replace("أ","ا").replace("إ","ا").replace("آ","ا").replace("ّ","");if(normalized.matches(".*(اطف|اوقف|وقف|اسكت|توقف|ايقاف).*")){media("pause");return;}if(normalized.matches(".*(شغل|اكمل|استأنف|استكمل).*")){media("play");return;}if(normalized.startsWith("ابحث عن ")||normalized.startsWith("بحث عن ")){String q=normalized.replaceFirst("^(ابحث عن|بحث عن)\\s*","").trim();if(!q.isEmpty())open(SITE+"?s="+Uri.encode(q));return;}Toast.makeText(this,"قل: ابحث عن... أو أطفئ أو شغّل",Toast.LENGTH_LONG).show();}
  @Override public void onBackPressed(){if(web.getVisibility()==android.view.View.VISIBLE){if(web.canGoBack()){web.goBack();return;}web.setVisibility(android.view.View.GONE);scroll.setVisibility(android.view.View.VISIBLE);return;}super.onBackPressed();}
  @Override protected void onDestroy(){web.destroy();super.onDestroy();}
