@@ -10,10 +10,13 @@ import android.text.Html;
 import android.view.View;
 import android.widget.*;
 import org.json.JSONObject;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Native WordPress article reader, sharing and local bookmarks. */
 public class ReaderActivity extends Activity {
  private TextView body;
+ private LinearLayout mediaActions;
  private String link, title;
  private int postId;
  private SharedPreferences favorites;
@@ -42,6 +45,7 @@ public class ReaderActivity extends Activity {
    i.putExtra(Intent.EXTRA_TEXT,(title==null?"":title)+"\n"+(link==null?"":link));
    startActivity(Intent.createChooser(i,"مشاركة المادة"));});
   root.addView(actions);
+  mediaActions=new LinearLayout(this);mediaActions.setOrientation(LinearLayout.VERTICAL);root.addView(mediaActions);
   ScrollView scroll=new ScrollView(this);body=new TextView(this);
   body.setTextColor(Color.rgb(40,54,61));body.setTextSize(18);body.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
   body.setPadding(26,24,26,48);body.setText("جارٍ تحميل المادة...");
@@ -57,6 +61,23 @@ public class ReaderActivity extends Activity {
    String html=content==null?"":content.optString("rendered","");
    if(html.isEmpty())body.setText("لا يوجد نص متاح لهذه المادة.");
    else body.setText(Html.fromHtml(html,Html.FROM_HTML_MODE_COMPACT));
+   addMediaLinks(html);
   });
+ }
+
+ private void addMediaLinks(String html) {
+  Pattern pattern=Pattern.compile("(?:https?:)?//[^\\s\"'<>]+?\\.(?:mp3|m4a|ogg|wav|mp4|webm)(?:\\?[^\"'<>\\s]*)?",Pattern.CASE_INSENSITIVE);
+  Matcher matcher=pattern.matcher(html.replace("&amp;","&"));
+  java.util.HashSet<String> seen=new java.util.HashSet<>();
+  while(matcher.find() && seen.size()<12){
+   String media=matcher.group();if(media.startsWith("//"))media="https:"+media;
+   if(!media.startsWith("https://")||!seen.add(media))continue;
+   final String url=media;
+   boolean video=url.toLowerCase(java.util.Locale.ROOT).matches(".*\\.(mp4|webm)(\\?.*)?$");
+   Button button=new Button(this);button.setText(video?"▶ مشاهدة الفيديو":"♫ استماع للتسجيل");
+   mediaActions.addView(button);
+   button.setOnClickListener(v->{Intent intent=new Intent(this,MediaActivity.class);
+    intent.putExtra("media_url",url);intent.putExtra("title",title);intent.putExtra("video",video);startActivity(intent);});
+  }
  }
 }
