@@ -1,5 +1,7 @@
 package org.itsmygod.hatharabbi;
 import android.Manifest;
+import android.os.Build;
+import com.google.firebase.messaging.FirebaseMessaging;
 import android.app.Activity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -70,7 +72,8 @@ public class MainActivity extends Activity {
   addNav(nav,"بحث صوتي","🎙",()->startVoice());
   addNav(nav,"إيقاف","Ⅱ",()->media("pause"));
   root.addView(nav,new LinearLayout.LayoutParams(-1,dp(70)));
-  if(checkSelfPermission(Manifest.permission.RECORD_AUDIO)!=PackageManager.PERMISSION_GRANTED)requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO},100);
+  if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 102);
+  FirebaseMessaging.getInstance().subscribeToTopic("all_users");
  }
  private void startVoice(){try{Intent i=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"ar");i.putExtra(RecognizerIntent.EXTRA_PROMPT,"تحدث الآن");startActivityForResult(i,VOICE_REQUEST);}catch(Exception e){Toast.makeText(this,"التعرف الصوتي غير متاح على الجهاز",Toast.LENGTH_LONG).show();}}
  private void media(String action){
