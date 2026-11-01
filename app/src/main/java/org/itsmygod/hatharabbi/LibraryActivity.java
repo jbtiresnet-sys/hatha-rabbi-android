@@ -19,6 +19,7 @@ public class LibraryActivity extends Activity {
  private int category = 0, page = 1;
  private String title = "المكتبة";
  private boolean loading = false;
+ private String search = "";
  private int dp(int v) { return (int)(v * getResources().getDisplayMetrics().density); }
  private TextView label(String value, int size) {
   TextView t = new TextView(this); t.setText(value); t.setTextSize(size);
@@ -35,6 +36,7 @@ public class LibraryActivity extends Activity {
  }
  @Override public void onCreate(Bundle b) {
   super.onCreate(b); category = getIntent().getIntExtra("category",0);
+  search=getIntent().getStringExtra("search");if(search==null)search="";
   title = getIntent().getStringExtra("title"); if(title == null) title = "المكتبة";
   LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);
   root.setBackgroundColor(Color.rgb(247,250,251)); root.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
@@ -45,7 +47,8 @@ public class LibraryActivity extends Activity {
   Button next = new Button(this); next.setText("عرض المزيد"); root.addView(next);
   next.setOnClickListener(v -> loadPosts());
   setContentView(root);
-  if(category == 0) loadCategories(); else { loadChildren(); loadPosts(); }
+  if(!search.isEmpty()) {heading.setText("نتائج البحث: "+search);loadPosts();}
+  else if(category == 0) loadCategories(); else { loadChildren(); loadPosts(); }
  }
  private void loadCategories() {
   row("التصنيفات",()->{});
@@ -78,6 +81,7 @@ public class LibraryActivity extends Activity {
   if(loading) return; loading = true;
   String endpoint="posts?per_page=20&page="+page+"&_fields=id,title,link,excerpt";
   if(category != 0) endpoint += "&categories="+category;
+  if(!search.isEmpty())endpoint+="&search="+Uri.encode(search);
   WpApi.getArray(endpoint,(data,error)->{
    loading=false;
    if(error != null) {
