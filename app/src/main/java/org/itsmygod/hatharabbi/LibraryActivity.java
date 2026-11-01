@@ -89,7 +89,7 @@ public class LibraryActivity extends Activity {
     JSONObject post=data.optJSONObject(i);if(post==null)continue;
     String name=WpApi.rendered(post,"title"), link=post.optString("link");
     row("📖  "+name,()->{Intent intent=new Intent(this,ReaderActivity.class);
-     intent.putExtra("url",link);intent.putExtra("title",name);startActivity(intent);});
+     intent.putExtra("url",link);intent.putExtra("title",name);intent.putExtra("post_id",post.optInt("id"));startActivity(intent);});
    }
    page++;
   });
