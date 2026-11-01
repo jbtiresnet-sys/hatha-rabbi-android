@@ -39,6 +39,27 @@ public final class WpApi {
    MAIN.post(() -> callback.onResult(data, failure));
   });
  }
+
+ public interface ObjectCallback { void onResult(JSONObject result, String error); }
+ public static void getObject(String endpoint, ObjectCallback callback) {
+  IO.execute(() -> {
+   JSONObject result = null; String error = null; HttpURLConnection connection = null;
+   try {
+    connection = (HttpURLConnection) new URL(BASE + endpoint).openConnection();
+    connection.setConnectTimeout(12000); connection.setReadTimeout(15000);
+    connection.setRequestProperty("Accept", "application/json");
+    if(connection.getResponseCode()!=200) throw new Exception("HTTP "+connection.getResponseCode());
+    try(InputStream in=connection.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()){
+     byte[] buffer=new byte[4096];int n;
+     while((n=in.read(buffer))!=-1)out.write(buffer,0,n);
+     result=new JSONObject(out.toString("UTF-8"));
+    }
+   }catch(Exception e){error=e.getMessage();}
+   finally{if(connection!=null)connection.disconnect();}
+   final JSONObject data=result;final String failure=error;
+   MAIN.post(()->callback.onResult(data,failure));
+  });
+ }
  public static String rendered(JSONObject object, String key) {
   JSONObject field = object.optJSONObject(key);
   return android.text.Html.fromHtml(field == null ? "" : field.optString("rendered", ""), android.text.Html.FROM_HTML_MODE_COMPACT).toString().trim();
