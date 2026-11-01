@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
  private ScrollView scroll;
  private static final int VOICE_REQUEST=501;
  private static final String SITE="https://www.itsmygod.org/";
- private static final int GREEN=Color.rgb(19,79,63), GOLD=Color.rgb(220,184,105), DARK=Color.rgb(13,23,24), MAROON=Color.rgb(110,38,58), CARD=Color.rgb(28,44,45);
+ private static final int GREEN=Color.rgb(55,122,125), GOLD=Color.rgb(161,113,37), DARK=Color.rgb(249,247,240), MAROON=Color.rgb(121,144,183), CARD=Color.rgb(232,242,244);
  private int dp(int v){return (int)(getResources().getDisplayMetrics().density*v);}
  private GradientDrawable bg(int color,int radius){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(radius));return d;}
  private TextView text(String s,int size,int color){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);t.setGravity(17);t.setPadding(dp(12),dp(12),dp(12),dp(12));return t;}
@@ -31,8 +31,8 @@ public class MainActivity extends Activity {
   tile.setBackground(bg(CARD,22));tile.setPadding(dp(14),dp(10),dp(14),dp(10));tile.setElevation(dp(3));
   TextView symbol=text(icon,25,GOLD);symbol.setBackground(bg(color,16));tile.addView(symbol,new LinearLayout.LayoutParams(dp(62),dp(62)));
   LinearLayout labels=new LinearLayout(this);labels.setOrientation(LinearLayout.VERTICAL);
-  TextView head=text(title,18,Color.WHITE);head.setGravity(android.view.Gravity.RIGHT);head.setTypeface(null,Typeface.BOLD);labels.addView(head);
-  TextView sub=text(desc,12,Color.rgb(181,198,193));sub.setGravity(android.view.Gravity.RIGHT);labels.addView(sub);
+  TextView head=text(title,18,Color.rgb(33,65,70));head.setGravity(android.view.Gravity.RIGHT);head.setTypeface(null,Typeface.BOLD);labels.addView(head);
+  TextView sub=text(desc,12,Color.rgb(80,104,107));sub.setGravity(android.view.Gravity.RIGHT);labels.addView(sub);
   LinearLayout.LayoutParams labelParams=new LinearLayout.LayoutParams(0,-2,1);labelParams.setMargins(dp(8),0,dp(8),0);tile.addView(labels,labelParams);
   TextView arrow=text("‹",27,GOLD);tile.addView(arrow);
   LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(106));lp.setMargins(dp(16),dp(6),dp(16),dp(6));home.addView(tile,lp);tile.setOnClickListener(v->open(url));
@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
   web.evaluateJavascript(js,null);
  }
 
- @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request!=VOICE_REQUEST||result!=RESULT_OK||data==null)return;ArrayList<String> results=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);if(results==null||results.isEmpty())return;String cmd=results.get(0).trim();String normalized=cmd.replace("أ","ا").replace("إ","ا").replace("آ","ا").replace("ّ","");if(normalized.matches(".*(اطف|اوقف|وقف|اسكت|توقف|ايقاف).*")){media("pause");return;}if(normalized.matches(".*(شغل|اكمل|استأنف|استكمل).*")){media("play");return;}if(normalized.startsWith("ابحث عن ")||normalized.startsWith("بحث عن ")){String q=normalized.replaceFirst("^(ابحث عن|بحث عن)\\s*","").trim();if(!q.isEmpty())open(SITE+"?s="+Uri.encode(q));return;}Toast.makeText(this,"قل: ابحث عن... أو أطفئ أو شغّل",Toast.LENGTH_LONG).show();}
+ @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request!=VOICE_REQUEST||result!=RESULT_OK||data==null)return;ArrayList<String> results=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);if(results==null||results.isEmpty())return;String cmd=results.get(0).trim();String normalized=cmd.replace("أ","ا").replace("إ","ا").replace("آ","ا").replace("ّ","");if(normalized.matches(".*(اطف|اوقف|وقف|اسكت|توقف|ايقاف).*")){media("pause");return;}if(normalized.matches(".*(شغل|اكمل|استأنف|استكمل).*")){media("play");return;}if(normalized.matches(".*(الرئيسيه|الرئيسية|الصفحه الرئيسيه).*")){showHome();return;}if(normalized.contains("قران")||normalized.contains("القران")){open(SITE+"category/quran-2/");return;}if(normalized.contains("محاضر")){open(SITE+"category/lectures/");return;}if(normalized.contains("صوتي")||normalized.contains("تسجيل")){open(SITE+"category/sawtiyat/");return;}if(normalized.contains("لطمي")){open(SITE+"category/reciters/");return;}if(normalized.startsWith("ابحث عن ")||normalized.startsWith("بحث عن ")){String q=normalized.replaceFirst("^(ابحث عن|بحث عن)\\s*","").trim();if(!q.isEmpty())open(SITE+"?s="+Uri.encode(q));return;}Toast.makeText(this,"قل: ابحث عن... أو أطفئ أو شغّل",Toast.LENGTH_LONG).show();}
  @Override public void onBackPressed(){if(web.getVisibility()==android.view.View.VISIBLE){if(web.canGoBack()){web.goBack();return;}showHome();return;}super.onBackPressed();}
  @Override protected void onDestroy(){web.destroy();super.onDestroy();}
 }
