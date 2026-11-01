@@ -1,5 +1,8 @@
 package org.itsmygod.hatharabbi;
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Build;
 import com.google.firebase.messaging.FirebaseMessaging;
 import android.app.Activity;
@@ -60,6 +63,15 @@ public class MainActivity extends Activity {
   addTile("▶","المحاضرات الإسلامية","مجالس ومحاضرات مرئية",SITE+"category/lectures/",MAROON);
   addTile("✦","القرآن الكريم","تلاوات قرآنية مباركة",SITE+"category/quran-2/",GREEN);
   addTile("❖","اللطميات","قصائد ومجالس عزاء",SITE+"category/reciters/",MAROON);
+  TextView tokenButton=text("اختبار الإشعارات  •  نسخ رمز FCM",17,GREEN);
+  tokenButton.setOnClickListener(v -> FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+    if (!task.isSuccessful() || task.getResult() == null) { Toast.makeText(this,"تعذر الحصول على الرمز. تأكد من الإنترنت وخدمات Google",Toast.LENGTH_LONG).show(); return; }
+    String token=task.getResult();
+    ClipboardManager clipboard=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+    clipboard.setPrimaryClip(ClipData.newPlainText("FCM token",token));
+    new android.app.AlertDialog.Builder(this).setTitle("رمز اختبار الإشعارات").setMessage("تم نسخ الرمز. الصقه في خانة Test on device داخل Firebase.").setPositiveButton("حسناً",null).show();
+  }));
+  home.addView(tokenButton);
   TextView footer=text("هذا ربي  •  itsmygod.org",12,GOLD);home.addView(footer);
   web=new WebView(this);web.setVisibility(android.view.View.GONE);root.addView(web,new LinearLayout.LayoutParams(-1,0,1));
   WebSettings s=web.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setMediaPlaybackRequiresUserGesture(false);
