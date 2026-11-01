@@ -3,6 +3,7 @@
 <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 <application android:icon="@drawable/app_icon" android:roundIcon="@drawable/app_icon" android:label="هذا ربي" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:usesCleartextTraffic="false" android:supportsRtl="true">
+<service android:name=".AppMessagingService" android:exported="false"><intent-filter><action android:name="com.google.firebase.MESSAGING_EVENT"/></intent-filter></service>
 <activity android:name=".MediaActivity" android:exported="false"/>
 <activity android:name=".LibraryActivity" android:exported="false"/>
 <activity android:name=".ReaderActivity" android:exported="false"/>
