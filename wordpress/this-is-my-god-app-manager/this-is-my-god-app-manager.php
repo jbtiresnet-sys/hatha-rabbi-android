@@ -2,7 +2,7 @@
 /**
  * Plugin Name: This Is My God - App Manager
  * Description: Public app configuration and WordPress category visibility controls.
- * Version: 0.1.0
+ * Version: 0.2.0
  * Requires PHP: 7.4
  */
 if (!defined('ABSPATH')) exit;
@@ -48,3 +48,5 @@ add_action('rest_api_init', function () {
   }
  ]);
 });
+
+require_once __DIR__ . '/notifications.php';
