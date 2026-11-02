@@ -77,14 +77,17 @@ function hatha_rabbi_notifications_page() {
  submit_button('إرسال الإشعار', 'primary', 'hatha_rabbi_send');
  echo '</form><hr><h2>الإرسال التلقائي عند النشر</h2><form method="post" action="options.php">';
  settings_fields('hatha_rabbi_notifications_group');
- echo '<label><input type="checkbox" name="hatha_rabbi_auto_push" value="1" '.checked((bool)get_option('hatha_rabbi_auto_push',false),true,false).'> إرسال إشعار عند نشر مقالة جديدة لأول مرة</label>';
+ echo '<label><input type="checkbox" name="hatha_rabbi_auto_push" value="1" '.checked((bool)get_option('hatha_rabbi_auto_push',false),true,false).'> إرسال إشعار عند نشر أي محتوى جديد (مقالات، أخبار، صوتيات، فيديوهات، وجميع أنواع المحتوى العامة)</label>';
  submit_button('حفظ الإعدادات'); echo '</form></div>';
 }
 add_action('transition_post_status', function ($new, $old, $post) {
- if ($new !== 'publish' || $old === 'publish' || !$post instanceof WP_Post || $post->post_type !== 'post' || !get_option('hatha_rabbi_auto_push', false)) return;
+ if ($new !== 'publish' || $old === 'publish' || !$post instanceof WP_Post || !get_option('hatha_rabbi_auto_push', false)) return;
  if (wp_is_post_revision($post->ID) || wp_is_post_autosave($post->ID)) return;
+ $type = get_post_type_object($post->post_type);
+ if (!$type || !$type->public || in_array($post->post_type, ['attachment'], true) || get_post_meta($post->ID, '_hatha_rabbi_push_sent', true)) return;
  $title = wp_strip_all_tags(get_the_title($post));
  $excerpt = wp_trim_words(wp_strip_all_tags(strip_shortcodes($post->post_excerpt ?: $post->post_content)), 24, '…');
  $result = hatha_rabbi_send_push('جديد في هذا ربي: '.$title, $excerpt ?: 'اضغط لقراءة المحتوى الجديد', get_permalink($post));
  if (is_wp_error($result)) error_log('Hatha Rabbi FCM: '.$result->get_error_code());
+ else update_post_meta($post->ID, '_hatha_rabbi_push_sent', current_time('mysql'));
 }, 10, 3);
